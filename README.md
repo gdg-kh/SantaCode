@@ -14,7 +14,7 @@ Welcome to the Programmer's Secret Santa!
     - `.rb (Ruby 3.2)`
     - `.sh (Alpine Shell)`
     - `.java (OpenJDK 17)`
-    - `.kt (Kotlin 1.9)`
+    - `.kt (Kotlin 1.8)`
     - `.swift (Swift 5.8)`
     - `.c (GCC 12)`
     - `.cpp (G++ 12)`

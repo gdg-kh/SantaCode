@@ -29,6 +29,7 @@ jobs:
           docker pull gcc:12 &
           docker pull eclipse-temurin:17-jdk &
           docker pull mono:6.12 &
+          docker pull thunderberry/kotlin:1.8.21 &
           docker pull python:3.10-slim &
           docker pull node:18-alpine &
           docker pull alpine:3.18 &
