@@ -96,7 +96,6 @@ function showChristmas() {
 	while ((levels * 2 - 1) <= (leftW + trunkW + rightW)) levels++;
 
 	const trunkHeight = Math.max(2, gifts.height);
-	const treeLines = getTreeLines(levels, trunkHeight);
 
 	// raw star shape lines (will be centered and colored when printing)
 	const rawStarLines = [
@@ -107,31 +106,92 @@ function showChristmas() {
 		' * * * '
 	];
 
-	// place gifts vertically aligned with trunk top
+	// small white snowman (3 lines)
+	const snow = [
+		FgWhite + '  _===_' + Reset,
+		FgWhite + ' (.,.) ' + Reset,
+		FgWhite + ' ( : ) ' + Reset
+	];
+
 	const trunkTopIndex = levels; // 0-based index where trunk starts
 	const giftTopIndex = trunkTopIndex;
 
-	const totalLines = Math.max(treeLines.length, giftTopIndex + Math.max(leftGift.length, rightGift.length));
+	// build tree lines per frame to allow blinking
+	function buildTreeLines(frame) {
+		const lines = [];
+		for (let i = 0; i < levels; i++) {
+			const width = i * 2 + 1;
+			const padding = levels - i + 4; // center the tree
+			let line = repeat(' ', padding);
 
-	// print star centered relative to tree area, including gift placeholders
-	const treeLeftPad = levels - (levels - 1) + 4; // same formula as in getTreeLines bottom padding
-	const treeBottomWidth = levels * 2 - 1;
-	const starWidthCalc = 7;
-	const starInnerPad = treeLeftPad + Math.floor((treeBottomWidth - starWidthCalc) / 2);
-	const lgPlaceholder = repeat(' ', leftW);
-	const rgPlaceholder = repeat(' ', rightW);
-	for (const s of rawStarLines) {
-		const starLine = lgPlaceholder + ' ' + repeat(' ', starInnerPad) + FgYellow + s + Reset + ' ' + rgPlaceholder;
-		cout('', starLine);
+			for (let j = 0; j < width; j++) {
+				let ch = '^';
+				let color = FgGreen;
+				if ((j + i) % 7 === 0) { ch = 'o'; color = FgRed; }
+				else if ((j + i) % 5 === 0) { ch = '●'; color = FgMagenta; }
+				else if ((j + i) % 3 === 0) { ch = '*'; color = FgCyan; }
+
+				if (ch !== '^') {
+					// deterministic-ish flicker: depends on frame and position
+					const on = ((frame + i * 7 + j * 13) % 6) < 3; // on for half the cycle
+					if (on) line += color + ch + Reset;
+					else line += FgGreen + '^' + Reset; // show branch when ornament is off (more visible)
+				} else {
+					line += color + ch + Reset;
+				}
+			}
+
+			lines.push(line);
+		}
+
+		const trunkPad = levels + 3;
+		const trunkLine = repeat(' ', trunkPad) + FgWhite + '|||' + Reset;
+		const h = trunkHeight || 2;
+		for (let t = 0; t < h; t++) lines.push(trunkLine);
+		return lines;
 	}
 
-	// print combined lines with left gift, tree, then right gift (gifts closer to trunk)
-	for (let i = 0; i < totalLines; i++) {
-		const lg = (i - giftTopIndex >= 0 && i - giftTopIndex < leftGift.length) ? leftGift[i - giftTopIndex] : repeat(' ', leftW);
-		const rg = (i - giftTopIndex >= 0 && i - giftTopIndex < rightGift.length) ? rightGift[i - giftTopIndex] : '';
-		const tree = treeLines[i] || repeat(' ', treeLines[0].length);
-		cout('', lg + ' ' + tree + ' ' + rg);
+	// animation loop
+	let frame = 0;
+	const intervalMs = 400;
+
+	function render() {
+		console.clear();
+		const treeLines = buildTreeLines(frame);
+
+		const totalLines = Math.max(treeLines.length, giftTopIndex + Math.max(leftGift.length, rightGift.length));
+
+		// print star centered relative to tree area, including gift placeholders
+		const treeLeftPad = levels - (levels - 1) + 4; // same formula as in getTreeLines bottom padding
+		const treeBottomWidth = levels * 2 - 1;
+		const starWidthCalc = 7;
+		const starInnerPad = treeLeftPad + Math.floor((treeBottomWidth - starWidthCalc) / 2);
+		const lgPlaceholder = repeat(' ', leftW);
+		const rgPlaceholder = repeat(' ', rightW);
+
+		// draw star (blink every other frame)
+		const starColor = (frame % 2 === 0) ? FgYellow : FgGray;
+		for (const s of rawStarLines) {
+			const starLine = lgPlaceholder + ' ' + repeat(' ', starInnerPad) + starColor + s + Reset + ' ' + rgPlaceholder;
+			cout('', starLine);
+		}
+
+		// place snow so its bottom aligns with tree base
+		const snowTop = Math.max(0, treeLines.length - snow.length);
+
+		for (let i = 0; i < totalLines; i++) {
+			const lg = (i - giftTopIndex >= 0 && i - giftTopIndex < leftGift.length) ? leftGift[i - giftTopIndex] : repeat(' ', leftW);
+			const rg = (i - giftTopIndex >= 0 && i - giftTopIndex < rightGift.length) ? rightGift[i - giftTopIndex] : repeat(' ', rightW);
+			const tree = treeLines[i] || repeat(' ', treeLines[0].length);
+			const snowLine = (i >= snowTop && i < snowTop + snow.length) ? snow[i - snowTop] : '';
+			cout('', lg + ' ' + tree + ' ' + rg + ' ' + snowLine);
+		}
+
+		frame++;
 	}
+
+	render();
+	setInterval(render, intervalMs);
 }
 
 // Run
