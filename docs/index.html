@@ -65,7 +65,10 @@
 [SantaCode]
         </div>
         <h1 data-i18n="title">SantaCode 2025</h1>
-        <p data-i18n="subtitle">> Programmer's Secret Santa Event initialized...</p>
+        <p>
+          <span id="event-status" data-i18n="subtitle">> Programmer's Secret Santa Event initialized...</span>
+          <span id="gift-counter" style="color: #3fb950; font-weight: bold; display: none;"></span>
+        </p>
       </header>
 
       <section id="mission">
@@ -147,25 +150,16 @@
         </div>
       </section>
 
-      <section id="exchange-info" style="background: rgba(255, 107, 107, 0.1); padding: 20px; border-radius: 8px; border-left: 4px solid #ff6b6b; margin: 20px 0;">
+      <section id="exchange-info">
         <h2 data-i18n="exchange_title">🎁 交換機制說明</h2>
         <p data-i18n="exchange_desc_1">
           活動截止後，管理員會觸發自動交換系統，系統將隨機配對所有參與者。
         </p>
         <p data-i18n="exchange_desc_2">
           <strong>重要：</strong>為了避免大量 @mention 造成困擾（可能被 GitHub 視為濫用），
-          我們使用 <strong>自動 Issue 公告</strong>機制。
+          我們使用 <strong>自動 Issue 公告</strong>機制。請務必完成上方 <strong>步驟 5 (Watch Repository)</strong> 以接收通知。
         </p>
-        <div style="background: rgba(255, 255, 255, 0.9); padding: 15px; border-radius: 5px; margin: 10px 0;">
-          <strong data-i18n="notification_howto">📢 如何確保收到通知：</strong>
-          <ol style="margin: 10px 0; padding-left: 20px;">
-            <li data-i18n="notification_step_1">在提交 PR 後，點擊專案右上角的 <strong>Watch</strong> 按鈕</li>
-            <li data-i18n="notification_step_2">選擇 <strong>Custom</strong>（自訂）</li>
-            <li data-i18n="notification_step_3">勾選 <strong>Issues</strong> ✅</li>
-            <li data-i18n="notification_step_4">完成！當交換完成時你會自動收到 email/GitHub 通知</li>
-          </ol>
-        </div>
-        <p data-i18n="exchange_result" style="margin-top: 15px;">
+        <p data-i18n="exchange_result">
           🎅 交換完成後，你的 <code>submissions/你的ID/</code> 資料夾中會出現來自神秘聖誕老人的禮物程式碼！
         </p>
       </section>

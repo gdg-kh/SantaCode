@@ -20,7 +20,7 @@ const translations = {
     step_1_title: 'Fork Repo',
     step_1_desc: '<a href="https://github.com/gdg-kh/SantaCode" target="_blank">Fork this project</a> to your GitHub.',
     step_2_title: 'Create Directory',
-    step_2_desc: 'Create a folder `submissions/YOUR_ID/`.',
+    step_2_desc: 'Create a folder `submissions/YOUR_GitHub_ID/`.',
     step_3_title: 'Write Code',
     step_3_desc: 'Place your code (e.g., `tree.py`). You can check <a href="https://github.com/gdg-kh/SantaCode/tree/master/submissions/example-santa" target="_blank">multi-language examples here</a>.',
     step_4_title: 'Pull Request',
@@ -29,15 +29,11 @@ const translations = {
     step_5_desc: 'Click the <strong>Watch</strong> button at the top-right > Choose <strong>Custom</strong> > Check <strong>Issues ✅</strong><br/>When the exchange completes, the system will automatically create an Issue announcement, and you will be notified!<br/><em style="color: #ff6b6b;">⚠️ If you don\'t Watch, you won\'t receive notifications!</em>',
     exchange_title: '🎁 Exchange Mechanism',
     exchange_desc_1: 'After the deadline, the admin will trigger the automatic exchange system, which will randomly pair all participants.',
-    exchange_desc_2: '<strong>Important:</strong> To avoid spamming with mass @mentions (which may be considered abuse by GitHub), we use an <strong>automatic Issue announcement</strong> mechanism.',
-    notification_howto: '📢 How to ensure you receive notifications:',
-    notification_step_1: 'After submitting your PR, click the <strong>Watch</strong> button at the top-right of the project',
-    notification_step_2: 'Select <strong>Custom</strong>',
-    notification_step_3: 'Check <strong>Issues</strong> ✅',
-    notification_step_4: 'Done! You will automatically receive email/GitHub notifications when the exchange is complete',
+    exchange_desc_2: '<strong>Important:</strong> To avoid spamming with mass @mentions (which may be considered abuse by GitHub), we use an <strong>automatic Issue announcement</strong> mechanism. Please complete <strong>Step 5 (Watch Repository)</strong> above to ensure you receive notifications.',
     exchange_result: '🎅 After the exchange is complete, a gift code from a mysterious Santa will appear in your <code>submissions/YOUR_ID/</code> folder!',
     runtimes_title: '💾 Supported Runtimes',
     footer_status: 'Status: WAITING_FOR_SUBMISSIONS',
+    gift_count_msg: '🎁 Collected <strong>{count}</strong> gifts so far!',
   },
   'zh-TW': {
     title: 'SantaCode 2025',
@@ -59,7 +55,7 @@ const translations = {
     step_1_title: 'Fork 專案',
     step_1_desc: '<a href="https://github.com/gdg-kh/SantaCode" target="_blank">將本專案 Fork 到你的 GitHub。</a>',
     step_2_title: '建立目錄',
-    step_2_desc: '建立資料夾 `submissions/你的ID/`。',
+    step_2_desc: '建立資料夾 `submissions/你的 GitHub ID/`。',
     step_3_title: '撰寫程式',
     step_3_desc: '放入你的程式碼 (如 `tree.py`)。<a href="https://github.com/gdg-kh/SantaCode/tree/master/submissions/example-santa" target="_blank">參考多語言範例檔</a>。',
     step_4_title: '提交 PR',
@@ -68,15 +64,11 @@ const translations = {
     step_5_desc: '點擊專案右上角的 <strong>Watch</strong> 按鈕 > 選擇 <strong>Custom</strong> > 勾選 <strong>Issues ✅</strong><br/>當交換完成時，系統會自動創建 Issue 公告，你將收到通知！<br/><em style="color: #ff6b6b;">⚠️ 不 Watch 就收不到通知哦！</em>',
     exchange_title: '🎁 交換機制說明',
     exchange_desc_1: '活動截止後，管理員會觸發自動交換系統，系統將隨機配對所有參與者。',
-    exchange_desc_2: '<strong>重要：</strong>為了避免大量 @mention 造成困擾（可能被 GitHub 視為濫用），我們使用 <strong>自動 Issue 公告</strong>機制。',
-    notification_howto: '📢 如何確保收到通知：',
-    notification_step_1: '在提交 PR 後，點擊專案右上角的 <strong>Watch</strong> 按鈕',
-    notification_step_2: '選擇 <strong>Custom</strong>（自訂）',
-    notification_step_3: '勾選 <strong>Issues</strong> ✅',
-    notification_step_4: '完成！當交換完成時你會自動收到 email/GitHub 通知',
+    exchange_desc_2: '<strong>重要：</strong>為了避免大量 @mention 造成困擾（可能被 GitHub 視為濫用），我們使用 <strong>自動 Issue 公告</strong>機制。請務必完成上方 <strong>步驟 5 (Watch Repository)</strong> 以接收通知。',
     exchange_result: '🎅 交換完成後，你的 <code>submissions/你的ID/</code> 資料夾中會出現來自神秘聖誕老人的禮物程式碼！',
     runtimes_title: '💾 支援語言環境',
     footer_status: '狀態: 等待投稿中',
+    gift_count_msg: '🎁 目前已收到 <strong>{count}</strong> 份禮物！',
   },
   ja: {
     title: 'SantaCode 2025',
@@ -99,7 +91,7 @@ const translations = {
     step_1_title: 'リポジトリをFork',
     step_1_desc: '<a href="https://github.com/gdg-kh/SantaCode" target="_blank">このプロジェクトを自分のGitHubにForkします。</a>',
     step_2_title: 'フォルダ作成',
-    step_2_desc: '`submissions/あなたのID/` フォルダを作成。',
+    step_2_desc: '`submissions/あなたの GitHub ID/` フォルダを作成。',
     step_3_title: 'コード作成',
     step_3_desc: 'プログラムを配置 (例: `tree.py`)。<a href="https://github.com/gdg-kh/SantaCode/tree/master/submissions/example-santa" target="_blank">多言語の例はこちら</a>。',
     step_4_title: 'プルリクエスト',
@@ -108,17 +100,53 @@ const translations = {
     step_5_desc: 'プロジェクト右上の <strong>Watch</strong> ボタンをクリック > <strong>Custom</strong> を選択 > <strong>Issues ✅</strong> にチェック<br/>交換が完了すると、システムが自動的にIssue通知を作成します！<br/><em style="color: #ff6b6b;">⚠️ Watchしないと通知を受け取れません！</em>',
     exchange_title: '🎁 交換メカニズム',
     exchange_desc_1: '締め切り後、管理者が自動交換システムを起動し、すべての参加者をランダムにペアリングします。',
-    exchange_desc_2: '<strong>重要：</strong>大量の @mention によるスパム（GitHubから悪用と見なされる可能性があります）を避けるため、<strong>自動Issue通知</strong>メカニズムを使用します。',
-    notification_howto: '📢 通知を確実に受け取る方法：',
-    notification_step_1: 'PR送信後、プロジェクト右上の <strong>Watch</strong> ボタンをクリック',
-    notification_step_2: '<strong>Custom</strong> を選択',
-    notification_step_3: '<strong>Issues</strong> にチェック ✅',
-    notification_step_4: '完了！交換完了時に自動的にemail/GitHub通知を受け取ります',
+    exchange_desc_2: '<strong>重要：</strong>大量の @mention によるスパム（GitHubから悪用と見なされる可能性があります）を避けるため、<strong>自動Issue通知</strong>メカニズムを使用します。通知を受け取るため、必ず上記の <strong>Step 5 (Watch Repository)</strong> を完了してください。',
     exchange_result: '🎅 交換完了後、あなたの <code>submissions/あなたのID/</code> フォルダに謎のサンタからのギフトコードが現れます！',
     runtimes_title: '💾 対応ランタイム',
     footer_status: 'ステータス: 投稿待ち',
+    gift_count_msg: '🎁 現在 <strong>{count}</strong> 個のギフトが集まっています！',
   },
 };
+
+let currentGiftCount = null;
+
+function updateGiftCountDisplay(lang) {
+  const counterEl = document.getElementById('gift-counter');
+  const statusEl = document.getElementById('event-status');
+  if (!counterEl || !statusEl || currentGiftCount === null) return;
+  
+  if (currentGiftCount > 0) {
+    const msgTemplate = translations[lang]['gift_count_msg'];
+    if (msgTemplate) {
+      counterEl.innerHTML = msgTemplate.replace('{count}', currentGiftCount);
+      counterEl.style.display = 'inline';
+      statusEl.style.display = 'none';
+    }
+  } else {
+    counterEl.style.display = 'none';
+    statusEl.style.display = 'inline';
+  }
+}
+
+async function fetchGiftCount() {
+  try {
+    const response = await fetch('https://api.github.com/repos/gdg-kh/SantaCode/contents/submissions');
+    if (!response.ok) return;
+    
+    const data = await response.json();
+    // Filter out 'example-santa' and non-directory items
+    const count = data.filter(item => item.type === 'dir' && item.name !== 'example-santa').length;
+    
+    currentGiftCount = count;
+    
+    // Update display with current active language
+    const currentLang = document.querySelector('.lang-btn.active')?.dataset.lang || 'en';
+    updateGiftCountDisplay(currentLang);
+    
+  } catch (e) {
+    console.log('Failed to fetch gift count', e);
+  }
+}
 
 function setLanguage(lang) {
   if (!translations[lang]) return;
@@ -130,6 +158,9 @@ function setLanguage(lang) {
       element.innerHTML = translations[lang][key];
     }
   });
+
+  // Update gift counter if count is available
+  updateGiftCountDisplay(lang);
 
   // Update buttons state
   document.querySelectorAll('.lang-btn').forEach((btn) => {
@@ -162,8 +193,10 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   setLanguage(defaultLang);
+  fetchGiftCount(); // Fetch count on load
 
   document.querySelectorAll('.lang-btn').forEach((btn) => {
+
     btn.addEventListener('click', (e) => {
       const selectedLang = e.target.dataset.lang;
       setLanguage(selectedLang);
