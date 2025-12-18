@@ -75,9 +75,7 @@ def main():
         
         # 簡單的保底機制：如果失敗，換成官方文字樹
         if not success:
-             gift_content = f"[System] The code from {sender['id']} broke. Here is a backup tree:\n   *\n  /|\
- /_|_
-   |"
+             gift_content = f"[System] The code from {sender['id']} broke. Here is a backup tree:\n   *\n  /|\\\n /_|_\\\n   |"
 
         results.append({
             "Sender": sender['id'],

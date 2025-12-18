@@ -7,18 +7,18 @@ Welcome to the Programmer's Secret Santa!
 
 1.  **目標 (Goal)**: 寫一個程式，執行後會在 Standard Output (stdout) 印出一棵聖誕樹。
     Write a program that prints a Christmas tree to stdout.
-2.  **語言 (Languages)**: 
-    - `.py (Python 3.10)`
+2. **語言 (Languages)**:
+    - `.py (Python 3.13)`
     - `.js (Node 18)`
-    - `.go (Go 1.20)`
-    - `.rb (Ruby 3.2)`
+    - `.go (Go 1.23)`
+    - `.rb (Ruby 3.3)`
     - `.sh (Alpine Shell)`
     - `.java (OpenJDK 17)`
-    - `.kt (Kotlin 1.8)`
+    - `.kt (Kotlin 2.2)`
     - `.swift (Swift 5.8)`
     - `.c (GCC 12)`
     - `.cpp (G++ 12)`
-    - `.cs (Mono 6.12)`
+    - `.cs (.NET 8.0)`
     - `.rs (Rust)`
 3.  **限制 (Constraints)**:
     - **NO Internet**: 執行環境沒有網路。
@@ -42,7 +42,7 @@ Welcome to the Programmer's Secret Santa!
 
 ```bash
 # Python example
-docker run --rm --network none --memory 512m -v $(pwd)/submissions/YOUR_ID:/app -w /app python:3.10-slim python tree.py
+docker run --rm --network none --memory 512m -v $(pwd)/submissions/YOUR_ID:/app -w /app python:3.13-slim python tree.py
 ```
 
 ## 🎁 交換 (Exchange)

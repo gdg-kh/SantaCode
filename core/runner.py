@@ -12,9 +12,9 @@ logger = logging.getLogger(__name__)
 # 支援的語言設定
 LANGUAGE_CONFIG = {
     '.py': {
-        'image': 'python:3.10-slim',
+        'image': 'python:3.13-slim',
         'command': 'python -B',
-        'file_flag': '' 
+        'file_flag': ''
     },
     '.js': {
         'image': 'node:18-alpine',
@@ -22,12 +22,12 @@ LANGUAGE_CONFIG = {
         'file_flag': ''
     },
     '.go': {
-        'image': 'golang:1.20-alpine',
+        'image': 'golang:1.23-alpine',
         'command': 'sh -c "export GOCACHE=/tmp && go run $0"',
         'file_flag': ''
     },
     '.rb': {
-        'image': 'ruby:3.2-alpine',
+        'image': 'ruby:3.3-alpine',
         'command': 'ruby',
         'file_flag': ''
     },
@@ -42,7 +42,7 @@ LANGUAGE_CONFIG = {
         'file_flag': ''
     },
     '.kt': {
-        'image': 'thunderberry/kotlin:1.8.21',
+        'image': 'zenika/kotlin:latest',
         'command': 'sh -c "kotlinc $0 -include-runtime -d /tmp/output.jar && java -jar /tmp/output.jar"',
         'file_flag': ''
     },
@@ -62,8 +62,8 @@ LANGUAGE_CONFIG = {
         'file_flag': ''
     },
     '.cs': {
-        'image': 'mono:6.12',
-        'command': 'sh -c "mcs $0 -out:/tmp/app.exe && mono /tmp/app.exe"',
+        'image': 'mcr.microsoft.com/dotnet/sdk:8.0',
+        'command': 'sh -c "dotnet new console -o /tmp/csapp --force -q && cp $0 /tmp/csapp/Program.cs && dotnet run --project /tmp/csapp -v q"',
         'file_flag': ''
     },
     '.rs': {
