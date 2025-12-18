@@ -43,7 +43,7 @@ LANGUAGE_CONFIG = {
     },
     '.kt': {
         'image': 'zenika/kotlin:latest',
-        'command': 'sh -c "kotlinc $0 -include-runtime -d /tmp/output.jar && java -jar /tmp/output.jar"',
+        'command': 'sh -c \'FILE=$0; BASE=${FILE%.kt}; FIRST=$(echo ${BASE:0:1} | tr a-z A-Z); REST=${BASE:1}; CLASS="${FIRST}${REST}Kt"; kotlinc $FILE -d /tmp && kotlin -classpath /tmp $CLASS\'',
         'file_flag': ''
     },
     '.swift': {
@@ -74,7 +74,7 @@ LANGUAGE_CONFIG = {
 }
 
 # 安全限制
-TIMEOUT_SEC = 15  # Increased for compiled languages
+TIMEOUT_SEC = 30  # Increased for compiled languages (especially Kotlin)
 MEMORY_LIMIT = "512m"
 CPU_LIMIT = "0.5"
 
