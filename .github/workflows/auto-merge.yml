@@ -1,0 +1,159 @@
+name: Auto-merge PR
+
+on:
+  pull_request_target:
+    types: [opened, synchronize, reopened, ready_for_review]
+  check_run:
+    types: [completed]
+  status: {}
+
+jobs:
+  auto-merge:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: write
+      pull-requests: write
+      checks: read
+
+    steps:
+      - name: Get PR details
+        uses: actions/github-script@v7
+        id: pr-info
+        with:
+          script: |
+            let pr;
+
+            if (context.eventName === 'pull_request_target') {
+              pr = context.payload.pull_request;
+            } else {
+              // For check_run or status events, find the associated PR
+              const pulls = await github.rest.pulls.list({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                state: 'open',
+                head: `${context.repo.owner}:${context.ref.replace('refs/heads/', '')}`
+              });
+
+              if (pulls.data.length === 0) {
+                console.log('No open PR found for this ref');
+                return { skip: true };
+              }
+
+              pr = pulls.data[0];
+            }
+
+            console.log(`Found PR #${pr.number}: ${pr.title}`);
+
+            return {
+              skip: false,
+              number: pr.number,
+              draft: pr.draft
+            };
+
+      - name: Wait for checks and enable auto-merge
+        if: fromJSON(steps.pr-info.outputs.result).skip == false && fromJSON(steps.pr-info.outputs.result).draft == false
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const prNumber = ${{ fromJSON(steps.pr-info.outputs.result).number }};
+
+            console.log(`Checking PR #${prNumber} status...`);
+
+            // Get PR details
+            const { data: pr } = await github.rest.pulls.get({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: prNumber
+            });
+
+            // Check if PR is mergeable
+            if (pr.mergeable_state === 'blocked' || pr.mergeable === false) {
+              console.log('❌ PR is not mergeable yet (conflicts or checks pending)');
+              return;
+            }
+
+            // Get combined status
+            const { data: combinedStatus } = await github.rest.repos.getCombinedStatusForRef({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              ref: pr.head.sha
+            });
+
+            // Get check runs
+            const { data: checkRuns } = await github.rest.checks.listForRef({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              ref: pr.head.sha
+            });
+
+            // Check if all statuses are success
+            const allStatusesSuccess = combinedStatus.statuses.length === 0 ||
+              combinedStatus.statuses.every(s => s.state === 'success');
+
+            // Check if all check runs passed
+            const allChecksPassed = checkRuns.check_runs.length === 0 ||
+              checkRuns.check_runs.every(c =>
+                c.status === 'completed' &&
+                (c.conclusion === 'success' || c.conclusion === 'neutral' || c.conclusion === 'skipped')
+              );
+
+            console.log(`Statuses: ${combinedStatus.state}`);
+            console.log(`Check runs passed: ${allChecksPassed}`);
+
+            if (allStatusesSuccess && allChecksPassed && pr.mergeable_state === 'clean') {
+              console.log('✅ All checks passed! Enabling auto-merge...');
+
+              try {
+                // Enable auto-merge using GraphQL API
+                const mutation = `
+                  mutation EnableAutoMerge($pullRequestId: ID!) {
+                    enablePullRequestAutoMerge(input: {
+                      pullRequestId: $pullRequestId,
+                      mergeMethod: SQUASH
+                    }) {
+                      pullRequest {
+                        autoMergeRequest {
+                          enabledAt
+                        }
+                      }
+                    }
+                  }
+                `;
+
+                const result = await github.graphql(mutation, {
+                  pullRequestId: pr.node_id
+                });
+
+                console.log('🎉 Auto-merge enabled successfully!');
+
+                // Add a comment to the PR
+                await github.rest.issues.createComment({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  issue_number: prNumber,
+                  body: '🤖 All checks passed! Auto-merge enabled with squash strategy.'
+                });
+
+              } catch (error) {
+                console.log(`Failed to enable auto-merge: ${error.message}`);
+
+                // Fallback: try direct merge if auto-merge is not available
+                if (error.message.includes('auto-merge')) {
+                  console.log('Auto-merge not available, trying direct merge...');
+
+                  await github.rest.pulls.merge({
+                    owner: context.repo.owner,
+                    repo: context.repo.repo,
+                    pull_number: prNumber,
+                    merge_method: 'squash'
+                  });
+
+                  console.log('✅ PR merged successfully!');
+                }
+              }
+            } else {
+              console.log('⏳ Waiting for all checks to pass...');
+            }
+
