@@ -47,7 +47,7 @@ LANGUAGE_CONFIG = {
         'file_flag': ''
     },
     '.swift': {
-        'image': 'swift:5.8-slim',
+        'image': 'swift:5.8',
         'command': 'sh -c "swiftc $0 -o /tmp/app && /tmp/app"',
         'file_flag': ''
     },
@@ -63,7 +63,7 @@ LANGUAGE_CONFIG = {
     },
     '.cs': {
         'image': 'mcr.microsoft.com/dotnet/sdk:8.0',
-        'command': 'sh -c "dotnet new console -o /tmp/csapp --force -q && cp $0 /tmp/csapp/Program.cs && dotnet run --project /tmp/csapp -v q"',
+        'command': 'sh -c "dotnet new console -o /tmp/csapp --force && cp $0 /tmp/csapp/Program.cs && dotnet run --project /tmp/csapp --verbosity quiet"',
         'file_flag': ''
     },
     '.rs': {
@@ -74,7 +74,7 @@ LANGUAGE_CONFIG = {
 }
 
 # 安全限制
-TIMEOUT_SEC = 30  # Increased for compiled languages (especially Kotlin)
+TIMEOUT_SEC = 90  # Increased for compiled languages (Go can take ~30s, allow buffer)
 MEMORY_LIMIT = "512m"
 CPU_LIMIT = "0.5"
 

@@ -1,0 +1,94 @@
+name: Test All Language Docker Images
+
+on:
+  # 當 runner.py 被修改時自動觸發
+  push:
+    paths:
+      - 'core/runner.py'
+      - '.github/workflows/test-all-languages.yml'
+  pull_request:
+    paths:
+      - 'core/runner.py'
+      - '.github/workflows/test-all-languages.yml'
+  # 允許手動觸發
+  workflow_dispatch:
+
+jobs:
+  test-all-images:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.13'
+
+      - name: Test All Language Docker Images
+        run: |
+          echo "=========================================="
+          echo "Testing All Language Configurations"
+          echo "=========================================="
+
+          # 測試所有 example-santa 目錄下的檔案
+          EXAMPLE_DIR="submissions/example-santa"
+          FAILED_TESTS=()
+          PASSED_TESTS=()
+
+          # 找出所有測試檔案
+          TEST_FILES=$(find $EXAMPLE_DIR -type f \( -name "*.py" -o -name "*.js" -o -name "*.go" -o -name "*.rb" -o -name "*.sh" -o -name "*.java" -o -name "*.kt" -o -name "*.swift" -o -name "*.c" -o -name "*.cpp" -o -name "*.cs" -o -name "*.rs" \))
+
+          for file in $TEST_FILES; do
+            echo ""
+            echo "=================================================="
+            LANG=$(basename "$file" | sed 's/.*\.//')
+            echo "🧪 Testing: $file (.$LANG)"
+            echo "=================================================="
+
+            if python3 core/runner.py "$file" > /tmp/output.txt 2>&1; then
+              echo "✅ SUCCESS: .$LANG works correctly"
+              PASSED_TESTS+=("✅ .$LANG - $(basename $file)")
+
+              # 驗證輸出
+              if cat /tmp/output.txt | python3 challenges/2025-tree/validator.py 2>&1; then
+                echo "✅ Output validation passed"
+              else
+                echo "⚠️  Warning: Output validation failed (but Docker image works)"
+              fi
+            else
+              echo "❌ FAILED: .$LANG encountered an error"
+              echo "Error details:"
+              cat /tmp/output.txt
+              FAILED_TESTS+=("❌ .$LANG - $(basename $file)")
+            fi
+          done
+
+          echo ""
+          echo "=========================================="
+          echo "📊 Test Summary"
+          echo "=========================================="
+          echo ""
+          echo "✅ Passed Tests (${#PASSED_TESTS[@]}):"
+          for test in "${PASSED_TESTS[@]}"; do
+            echo "  $test"
+          done
+
+          if [ ${#FAILED_TESTS[@]} -gt 0 ]; then
+            echo ""
+            echo "❌ Failed Tests (${#FAILED_TESTS[@]}):"
+            for test in "${FAILED_TESTS[@]}"; do
+              echo "  $test"
+            done
+            echo ""
+            echo "=========================================="
+            echo "❌ Some language tests failed!"
+            echo "Please check the Docker image configurations in core/runner.py"
+            echo "=========================================="
+            exit 1
+          else
+            echo ""
+            echo "=========================================="
+            echo "✅ All language tests passed!"
+            echo "All Docker images are working correctly."
+            echo "=========================================="
+          fi
