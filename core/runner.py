@@ -3,6 +3,7 @@ import sys
 import os
 import logging
 import shlex
+import time
 from pathlib import Path
 
 # 設定 Log
@@ -74,9 +75,27 @@ LANGUAGE_CONFIG = {
 }
 
 # 安全限制
-TIMEOUT_SEC = 90  # Increased for compiled languages (Go can take ~30s, allow buffer)
 MEMORY_LIMIT = "512m"
 CPU_LIMIT = "0.5"
+
+def get_config_timeout():
+    """Reads timeout from config/event.yml"""
+    try:
+        config_path = Path(__file__).parent.parent / 'config' / 'event.yml'
+        if config_path.exists():
+            with open(config_path, 'r', encoding='utf-8') as f:
+                for line in f:
+                    if 'timeout_seconds:' in line:
+                        # expected format: "  timeout_seconds: 90"
+                        val = line.split(':')[1].strip()
+                        if '#' in val:
+                            val = val.split('#')[0].strip()
+                        return int(val)
+    except Exception:
+        pass
+    return 90 # fallback
+
+TIMEOUT_SEC = get_config_timeout()
 
 def detect_language(file_path: Path):
     ext = file_path.suffix
@@ -87,11 +106,11 @@ def detect_language(file_path: Path):
 def run_in_docker(file_path: str):
     path = Path(file_path).resolve()
     if not path.exists():
-        return False, "File not found"
+        return False, "File not found", 0
 
     config = detect_language(path)
     if not config:
-        return False, f"Unsupported file extension: {path.suffix}"
+        return False, f"Unsupported file extension: {path.suffix}", 0
 
     # 準備掛載路徑
     host_dir = str(path.parent)
@@ -118,12 +137,13 @@ def run_in_docker(file_path: str):
         "--read-only",
         "--env", "HOME=/tmp",          # Redirect HOME to writable tmpfs for all languages
         "--tmpfs", "/tmp:exec",        # 允許 /tmp 寫入且可執行 (編譯產物需要)
-        "-v", f"{host_dir}:/app:ro",
+        f"{host_dir}:/app:ro",
         "-w", "/app",
         config['image'],
         *final_cmd
     ]
 
+    start_time = time.time()
     try:
         logger.info(f"Executing {filename} with image {config['image']}...")
         result = subprocess.run(
@@ -132,16 +152,22 @@ def run_in_docker(file_path: str):
             text=True,
             timeout=TIMEOUT_SEC
         )
+        end_time = time.time()
+        duration = end_time - start_time
         
         if result.returncode != 0:
-            return False, f"Runtime Error (Exit Code {result.returncode}):\n{result.stderr}"
+            return False, f"Runtime Error (Exit Code {result.returncode}):\n{result.stderr}", duration
             
-        return True, result.stdout
+        return True, result.stdout, duration
 
     except subprocess.TimeoutExpired:
-        return False, f"Timeout! Execution exceeded {TIMEOUT_SEC} seconds."
+        end_time = time.time()
+        duration = end_time - start_time
+        return False, f"Timeout! Execution exceeded {TIMEOUT_SEC} seconds.", duration
     except Exception as e:
-        return False, f"System Error: {str(e)}"
+        end_time = time.time()
+        duration = end_time - start_time
+        return False, f"System Error: {str(e)}", duration
 
 if __name__ == "__main__":
     if len(sys.argv) < 2:
@@ -149,17 +175,19 @@ if __name__ == "__main__":
         sys.exit(1)
 
     target_file = sys.argv[1]
-    success, output = run_in_docker(target_file)
+    success, output, duration = run_in_docker(target_file)
     
     if success:
         # 將診斷資訊印到 stderr，確保 stdout 只有純粹的程式輸出
         print("--- EXECUTION RESULT ---", file=sys.stderr)
-        print("STATUS: SUCCESS", file=sys.stderr)
+        print(f"STATUS: SUCCESS", file=sys.stderr)
+        print(f"TIME: {duration:.2f}s", file=sys.stderr)
         # 只有這裡印到 stdout
         print(output)
     else:
         print("--- EXECUTION RESULT ---", file=sys.stderr)
-        print("STATUS: FAILED", file=sys.stderr)
+        print(f"STATUS: FAILED", file=sys.stderr)
+        print(f"TIME: {duration:.2f}s", file=sys.stderr)
         print("ERROR:", file=sys.stderr)
         print(output, file=sys.stderr)
         sys.exit(1)

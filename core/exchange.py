@@ -68,7 +68,7 @@ def main():
         print(f"Process: {sender['id']} -> {receiver['id']}")
         
         # 執行 Sender 的程式碼 (這是送給 Receiver 的禮物)
-        success, output = run_in_docker(str(sender['file']))
+        success, output, duration = run_in_docker(str(sender['file']))
         
         status = "Success" if success else "Failed"
         gift_content = output if success else f"Error: {output}"

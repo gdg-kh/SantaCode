@@ -10,7 +10,7 @@ challenge:
   # The directory name under 'challenges/'
   id: "2025-tree" 
   # Time limit for execution in seconds
-  timeout_seconds: 5
+  timeout_seconds: 90
   # Memory limit for the container
   memory_limit: "512m"
 
