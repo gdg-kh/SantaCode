@@ -1,4 +1,6 @@
-
+using System;
+using System.Collections.Generic;
+using System.Threading;
 class Program
 {
     const int size = 25;
@@ -36,20 +38,25 @@ class Program
 
         Console.SetCursorPosition(0, size - 1);
         Console.CursorVisible = true;
+        //Console.ReadKey();
     }
 
     static void DrawNoise()
     {
-        char[] n = { '/', '*', '\\', '|' };
+        char[] symbols = { '/', '*', '|', '\\' };
         Random r = new Random();
+
         for (int y = 0; y < size; y++)
+        {
             for (int x = 0; x < size; x++)
             {
-                buf[x, y] = n[r.Next(n.Length)];
-                Console.SetCursorPosition(x, y);
+                buf[x, y] = symbols[r.Next(symbols.Length)];
                 Console.Write(buf[x, y]);
             }
+            Console.WriteLine();
+        }
     }
+
 
     static void DrawTree(bool green)
     {
