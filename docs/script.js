@@ -33,7 +33,7 @@ const translations = {
     exchange_result: '🎅 After the exchange is complete, a gift code from a mysterious Santa will appear in your <code>submissions/YOUR_ID/</code> folder!',
     runtimes_title: '💾 Supported Runtimes',
     footer_status: 'Status: WAITING_FOR_SUBMISSIONS',
-    gift_count_msg: '🎁 Collected <strong>{count}</strong> gifts so far!',
+      gift_count_msg: '🎁 Look who sent a surprise! <strong>{count}</strong> exchange gifts collected so far.',
   },
   'zh-TW': {
     title: 'SantaCode 2025',
@@ -68,7 +68,7 @@ const translations = {
     exchange_result: '🎅 交換完成後，你的 <code>submissions/你的ID/</code> 資料夾中會出現來自神秘聖誕老人的禮物程式碼！',
     runtimes_title: '💾 支援語言環境',
     footer_status: '狀態: 等待投稿中',
-    gift_count_msg: '🎁 目前已收到 <strong>{count}</strong> 份禮物！',
+      gift_count_msg: '🎁 看看是誰送來了驚喜？目前已累積 <strong>{count}</strong> 份交換禮物',
   },
   ja: {
     title: 'SantaCode 2025',
@@ -104,7 +104,7 @@ const translations = {
     exchange_result: '🎅 交換完了後、あなたの <code>submissions/あなたのID/</code> フォルダに謎のサンタからのギフトコードが現れます！',
     runtimes_title: '💾 対応ランタイム',
     footer_status: 'ステータス: 投稿待ち',
-    gift_count_msg: '🎁 現在 <strong>{count}</strong> 個のギフトが集まっています！',
+      gift_count_msg: '🎁 誰がサプライズを届けたか見てみよう！現在 <strong>{count}</strong> 個のギフトが集まりました',
   },
 };
 
@@ -135,13 +135,24 @@ async function fetchGiftCount() {
     
     const data = await response.json();
     // Filter out 'example-santa' and non-directory items
-    const count = data.filter(item => item.type === 'dir' && item.name !== 'example-santa').length;
-    
-    currentGiftCount = count;
+      const submitters = data.filter(item => item.type === 'dir' && item.name !== 'example-santa');
+
+      currentGiftCount = submitters.length;
     
     // Update display with current active language
     const currentLang = document.querySelector('.lang-btn.active')?.dataset.lang || 'en';
     updateGiftCountDisplay(currentLang);
+
+      // Update submitter list
+      const listEl = document.getElementById('submitter-list');
+      if (listEl) {
+          listEl.innerHTML = submitters.map(s => `
+        <div class="gift-card" title="Gift from ${s.name}">
+          <span class="icon">🎁</span>
+          <span class="name">${s.name}</span>
+        </div>
+      `).join('');
+      }
     
   } catch (e) {
     console.log('Failed to fetch gift count', e);
