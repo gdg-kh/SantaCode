@@ -7,11 +7,15 @@ on:
         description: 'Type "MERRY CHRISTMAS" to confirm exchange'
         required: true
 
+permissions:
+  contents: write
+  issues: write
+
 jobs:
   exchange:
     runs-on: ubuntu-latest
     if: github.event.inputs.confirm_exchange == 'MERRY CHRISTMAS'
-    timeout-minutes: 60  # Ensure enough time for 100+ sequential executions
+    timeout-minutes: 60
     steps:
       - uses: actions/checkout@v4
 
@@ -23,7 +27,6 @@ jobs:
       - name: Pre-pull Docker Images
         run: |
           echo "Pre-warming Docker cache..."
-          # Pulling largest images first
           docker pull swift:5.8-slim &
           docker pull rust:slim &
           docker pull gcc:12 &
@@ -39,17 +42,9 @@ jobs:
           echo "All images prepared!"
 
       - name: Run Exchange Logic
-        run: |
-          echo "Starting the Great SantaCode Exchange..."
-          python3 core/exchange.py
-          
-      - name: Upload Match Report
-        uses: actions/upload-artifact@v4
-        with:
-          name: secret-santa-matches-report
-          path: match_report.csv
-
-      - name: Run Exchange Logic
+        env:
+          GITHUB_SERVER_URL: ${{ github.server_url }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
         run: |
           echo "Starting the Great SantaCode Exchange..."
           python3 core/exchange.py
@@ -58,9 +53,15 @@ jobs:
         run: |
           git config --global user.name "SantaCode Bot"
           git config --global user.email "bot@santacode.org"
+          
+          # 確保在正確的分支上
+          git fetch origin ${{ github.ref_name }}
+          git checkout ${{ github.ref_name }}
+          git pull origin ${{ github.ref_name }}
+          
           git add received_gifts/ match_report.csv final_issue_body.md
           git commit -m "🎄 Deliver gifts and update match report [skip ci]" || echo "No changes to commit"
-          git push
+          git push origin ${{ github.ref_name }}
 
       - name: Post Summary Issue
         env:

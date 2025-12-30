@@ -9,7 +9,7 @@ from runner import run_in_docker
 # 設定路徑
 BASE_DIR = Path(__file__).parent.parent
 SUBMISSIONS_DIR = BASE_DIR / "submissions"
-REPORT_FILE = "match_report.csv"
+REPORT_FILE = BASE_DIR / "match_report.csv"
 
 def get_participants():
     # 尋找 submissions/ 下的每個資料夾，假設資料夾名稱就是 User ID
@@ -61,6 +61,9 @@ def main():
 
     # 進行配對
     receivers = derangement_shuffle(participants)
+    if not receivers:
+        print("Error: Could not generate a valid derangement.")
+        return
     
     results = []
     
@@ -83,15 +86,17 @@ def main():
         
         # 簡單的保底機制：如果失敗，換成官方文字樹
         if not success:
-            gift_content = f"[System] The code from {sender['id']} broke. Here is a backup tree:\n   *\n  /|\\\\\n /_|_\\\\\n   |"
+            gift_content = f"[System] The code from {sender['id']} broke. Here is a backup tree:\n   *\n  /|\\\n /_|_\\\n   |"
 
-        # --- 新增功能：儲存實體禮物檔案 ---
+        # 防止內容中的三引號破壞 Markdown 格式
+        safe_gift_content = gift_content.replace("```", "'''")
+
+        # --- 儲存實體禮物檔案 ---
         receiver_gift_dir = gifts_root / receiver['id']
         receiver_gift_dir.mkdir(parents=True, exist_ok=True)
 
         # 1. 複製原始碼
         sender_file_path = sender['file']
-        # 檔名格式: from_{SenderID}_{OriginalName}
         dest_filename = f"from_{sender['id']}_{sender_file_path.name}"
         shutil.copy2(sender_file_path, receiver_gift_dir / dest_filename)
 
@@ -103,21 +108,20 @@ def main():
 ## Status: {status}
 
 ## 🎄 The Tree (Output)
-```
-{gift_content}
+```text
+{safe_gift_content}
 ```
 
 ## 📜 Source Code
 The original source code (`{sender_file_path.name}`) has been included in this folder as `{dest_filename}`.
 """
             md_file.write(md_content)
-        # -----------------------------------
 
         results.append({
             "Sender": sender['id'],
             "Receiver": receiver['id'],
             "Status": status,
-            "GiftPreview": gift_content[:100].replace('\n', ' ') + "..." # 預覽前100字
+            "GiftPreview": gift_content[:100].replace('\n', ' ') + "..."
         })
 
     # 輸出 CSV 報表
@@ -129,8 +133,14 @@ The original source code (`{sender_file_path.name}`) has been included in this f
         for data in results:
             writer.writerow(data)
             
-    # --- 新增功能：產生總結 Issue 內容 ---
-    issue_file = "final_issue_body.md"
+    # --- 產生總結 Issue 內容 ---
+    issue_file = BASE_DIR / "final_issue_body.md"
+    
+    server_url = os.environ.get('GITHUB_SERVER_URL', 'https://github.com')
+    repo_name = os.environ.get('GITHUB_REPOSITORY', 'User/Repo')
+    branch_name = os.environ.get('GITHUB_REF_NAME', 'main') 
+    base_url = f"{server_url}/{repo_name}/tree/{branch_name}"
+
     with open(issue_file, "w", encoding="utf-8") as f:
         f.write("# 🎅 2025 Secret Santa 禮物派發完成！\n\n")
         f.write("大家的禮物都已經生成完畢，請在下方表格找到你的名字，點擊連結領取禮物！\n\n")
@@ -139,10 +149,13 @@ The original source code (`{sender_file_path.name}`) has been included in this f
         for data in results:
             # 使用 @Tag 提醒參與者
             receiver_tag = f"@{data['Receiver']}"
-            sender_name = data['Sender']
+            sender_tag = f"@{data['Sender']}"
             status_emoji = "✅" if data['Status'] == "Success" else "⚠️ (Backup)"
-            gift_link = f"[查看我的禮物](./received_gifts/{data['Receiver']})"
-            f.write(f"| {receiver_tag} | {sender_name} | {status_emoji} | {gift_link} |\n")
+            
+            # 使用絕對路徑連結，確保在 Issue 中能點擊
+            gift_link = f"[查看我的禮物]({base_url}/received_gifts/{data['Receiver']})"
+            
+            f.write(f"| {receiver_tag} | {sender_tag} | {status_emoji} | {gift_link} |\n")
         
         f.write("\n\n---\n*本活動由 SantaCode 自動化系統執行。祝大家新年快樂！* 🎄")
 
