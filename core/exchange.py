@@ -9,7 +9,6 @@ from runner import run_in_docker
 # 設定路徑
 BASE_DIR = Path(__file__).parent.parent
 SUBMISSIONS_DIR = BASE_DIR / "submissions"
-REPORT_FILE = BASE_DIR / "match_report.csv"
 
 def get_participants():
     # 尋找 submissions/ 下的每個資料夾，假設資料夾名稱就是 User ID
@@ -124,15 +123,6 @@ The original source code (`{sender_file_path.name}`) has been included in this f
             "GiftPreview": gift_content[:100].replace('\n', ' ') + "..."
         })
 
-    # 輸出 CSV 報表
-    with open(REPORT_FILE, 'w', newline='', encoding='utf-8') as csvfile:
-        fieldnames = ['Sender', 'Receiver', 'Status', 'GiftPreview']
-        writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
-
-        writer.writeheader()
-        for data in results:
-            writer.writerow(data)
-            
     # --- 產生總結 Issue 內容 ---
     issue_file = BASE_DIR / "final_issue_body.md"
     
@@ -159,7 +149,7 @@ The original source code (`{sender_file_path.name}`) has been included in this f
         
         f.write("\n\n---\n*本活動由 SantaCode 自動化系統執行。祝大家新年快樂！* 🎄")
 
-    print(f"✅ Exchange complete! Report saved to {REPORT_FILE}")
+    print(f"✅ Exchange complete!")
     print(f"📢 Summary Issue body generated: {issue_file}")
 
 if __name__ == "__main__":

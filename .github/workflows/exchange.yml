@@ -59,8 +59,9 @@ jobs:
           git checkout ${{ github.ref_name }}
           git pull origin ${{ github.ref_name }}
           
-          git add received_gifts/ match_report.csv final_issue_body.md
-          git commit -m "🎄 Deliver gifts and update match report [skip ci]" || echo "No changes to commit"
+          # 使用 -f 強制加入可能被忽略的檔案
+          git add -f received_gifts/ final_issue_body.md
+          git commit -m "🎄 Deliver gifts [skip ci]" || echo "No changes to commit"
           git push origin ${{ github.ref_name }}
 
       - name: Post Summary Issue
@@ -68,9 +69,3 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           python3 core/post_issue.py
-
-      - name: Upload Match Report
-        uses: actions/upload-artifact@v4
-        with:
-          name: secret-santa-matches-report
-          path: match_report.csv
